@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTrack - Student Personal Finance Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Fira Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F4F6F9;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbars for technical sandboxes */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        /* Sidebar active highlighting matching image_d33639.png and image_d0ef85.png layout colors */
+        .sidebar-item-active {
+            background-color: #1E293B;
+            border-left: 4px solid #00C48C;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Toast Notification System -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full"></div>
+
+    <!-- DYNAMIC AUTHENTICATION ENTRY WORKSPACE -->
+    <div id="view-login" class="flex-1 flex flex-col justify-center items-center p-4 bg-[#0B1220]">
+        <div class="max-w-md w-full bg-[#0E1626] border border-slate-800 p-8 rounded-2xl shadow-2xl space-y-6">
+            
+            <!-- Sleek Dynamic SVG Brand Logo matching image_d33639.png graphics -->
+            <div class="text-center space-y-2">
+                <div class="flex flex-col items-center justify-center gap-3 mb-2">
+                    <div class="h-16 w-16 bg-[#00C48C] rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-emerald-500/20">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <span class="text-3xl font-extrabold tracking-tight text-white flex items-center">
+                        FinTrack<span class="text-[#00C48C]">.</span>
+                    </span>
+                </div>
+                <p class="text-slate-400 text-xs">Premium Student Budgeting & Strategic Finance Planner</p>
+            </div>
+
+            <!-- Auth Mode Toggles styled dynamically after image_d33639.png -->
+            <div class="flex bg-[#070C16] p-1 rounded-xl border border-slate-800/80">
+                <button onclick="toggleAuthMode('signin')" id="btn-toggle-signin" class="flex-1 py-2 text-xs font-bold text-white rounded-lg bg-slate-800/60 border border-slate-700/50 transition-all">
+                    Sign In
+                </button>
+                <button onclick="toggleAuthMode('signup')" id="btn-toggle-signup" class="flex-1 py-2 text-xs font-bold text-slate-400 rounded-lg hover:text-white transition-all">
+                    Register Account
+                </button>
+            </div>
+
+            <!-- SIGN IN VIEW -->
+            <form id="signin-form" onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email</label>
+                    <input type="email" id="login-email" required placeholder="yourname@domain.com" class="w-full bg-[#131B2E] border border-slate-800 rounded-xl py-3 px-4 text-white placeholder-slate-600 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                    <div class="relative">
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-[#131B2E] border border-slate-800 rounded-xl py-3 pl-4 pr-12 text-white placeholder-slate-600 focus:outline-none focus:border-[#00C48C] transition-all">
+                        <button type="button" onclick="togglePasswordVisibility('login-password', 'login-eye-icon')" class="absolute inset-y-0 right-3 flex items-center px-2 text-slate-400 hover:text-white transition-all">
+                            <i id="login-eye-icon" class="fa-regular fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-[#00C48C] hover:bg-[#00B07C] text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:scale-[1.01] flex items-center justify-center gap-2">
+                    <span>Unlock Dashboard</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <!-- REGISTER/SIGN UP VIEW (All user defined credentials) -->
+            <form id="signup-form" onsubmit="handleRegister(event)" class="hidden space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Full Name</label>
+                    <input type="text" id="reg-name" required placeholder="Rahul Sharma" class="w-full bg-[#131B2E] border border-slate-800 rounded-xl py-2.5 px-4 text-white placeholder-slate-600 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Your Email</label>
+                    <input type="email" id="reg-email" required placeholder="yourname@gmail.com" class="w-full bg-[#131B2E] border border-slate-800 rounded-xl py-2.5 px-4 text-white placeholder-slate-600 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Initial Setup Budget Allowance (₹)</label>
+                    <input type="number" id="reg-budget" required min="100" value="1500" class="w-full bg-[#131B2E] border border-slate-800 rounded-xl py-2.5 px-4 text-white placeholder-slate-600 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Password</label>
+                    <div class="relative">
+                        <input type="password" id="reg-password" required placeholder="Create password" class="w-full bg-[#131B2E] border border-slate-800 rounded-xl py-2.5 pl-4 pr-12 text-white placeholder-slate-600 focus:outline-none focus:border-[#00C48C] transition-all">
+                        <button type="button" onclick="togglePasswordVisibility('reg-password', 'reg-eye-icon')" class="absolute inset-y-0 right-3 flex items-center px-2 text-slate-400 hover:text-white transition-all">
+                            <i id="reg-eye-icon" class="fa-regular fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/20 hover:scale-[1.01] flex items-center justify-center gap-2">
+                    <span>Initialize Workspace</span>
+                    <i class="fa-solid fa-user-plus"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AUTH GUARDED MAIN WRAPPER -->
+    <div id="view-app" class="hidden flex-1 flex flex-col md:flex-row">
+        
+        <!-- SIDEBAR NAVIGATION (Dark themed matching image_d33639.png and image_d0ef85.png) -->
+        <aside class="w-full md:w-64 bg-[#0B1220] text-slate-400 flex flex-col shrink-0 border-r border-slate-800/60">
+            <!-- Sidebar Header & Brand -->
+            <div class="p-6 flex items-center gap-3 border-b border-slate-800/40">
+                <div class="h-6 w-6 bg-[#00C48C] rounded flex items-center justify-center text-white text-xs font-black">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+                <span class="text-xl font-extrabold tracking-tight text-white flex items-center">
+                    FinTrack<span class="text-[#00C48C] ml-0.5">.</span>
+                </span>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-1 py-6 space-y-1 px-3">
+                <button id="sidebar-dashboard-btn" onclick="switchTab('dashboard')" class="sidebar-item-active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-white text-left">
+                    <i class="fa-solid fa-grid-2 md:w-5 text-center fa-lg fa-house"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button id="sidebar-analytics-btn" onclick="switchTab('analytics')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-slate-200 text-left">
+                    <i class="fa-solid fa-chart-line md:w-5 text-center fa-lg"></i>
+                    <span>Analytics</span>
+                </button>
+                <button onclick="openAddExpenseSection()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-slate-200 text-left">
+                    <i class="fa-solid fa-plus md:w-5 text-center fa-lg"></i>
+                    <span>Add Expense</span>
+                </button>
+                <button id="sidebar-budget-btn" onclick="openSetBudgetModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-slate-200 text-left">
+                    <i class="fa-solid fa-sliders md:w-5 text-center fa-lg"></i>
+                    <span>Budgets</span>
+                </button>
+                <button id="sidebar-transactions-btn" onclick="scrollToTransactions()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-slate-200 text-left">
+                    <i class="fa-solid fa-list-check md:w-5 text-center fa-lg"></i>
+                    <span>Transactions</span>
+                </button>
+                
+                <div class="h-px bg-slate-800/60 my-6 mx-4"></div>
+
+                <button id="sidebar-profile-btn" onclick="switchTab('profile')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-slate-200 text-left">
+                    <i class="fa-solid fa-user-gear md:w-5 text-center fa-lg"></i>
+                    <span>Profile Settings</span>
+                </button>
+                <button id="sidebar-dev-btn" onclick="switchTab('developer')" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-slate-200 text-left">
+                    <i class="fa-solid fa-laptop-code md:w-5 text-center fa-lg text-cyan-400"></i>
+                    <span class="flex-1">Dev Hub</span>
+                    <span class="h-2 w-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                </button>
+            </nav>
+
+            <!-- Bottom User Profile Card on Left Sidebar -->
+            <div class="p-4 border-t border-slate-800/60 flex items-center gap-3">
+                <div class="h-9 w-9 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                    <span id="sidebar-avatar-letters">US</span>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <span id="sidebar-username" class="text-xs font-bold block text-slate-100 truncate">Student User</span>
+                    <span id="sidebar-cohort" class="text-[10px] text-slate-500 block truncate">Junior · Class of 2028</span>
+                </div>
+                <button onclick="handleLogout()" class="text-slate-500 hover:text-rose-400 p-1 rounded" title="Logout Session">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CANVAS CONTAINER -->
+        <main class="flex-1 flex flex-col overflow-y-auto">
+            
+            <!-- Top Dashboard Bar -->
+            <header class="bg-white border-b border-slate-100 py-4 px-6 md:px-8 flex justify-between items-center gap-4 shrink-0">
+                <div class="flex items-center gap-2">
+                    <span class="text-[#2563EB] font-extrabold uppercase tracking-widest text-[11px]">System Status: Connected</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="openSetBudgetModal()" class="text-xs bg-[#00C48C]/10 text-[#00C48C] hover:bg-[#00C48C]/20 border border-[#00C48C]/20 px-3.5 py-2 rounded-xl transition-all font-semibold">
+                        Configure Budget Limits
+                    </button>
+                    <!-- Core Action Button Styled Blue from image_d33639.png -->
+                    <button onclick="focusExpenseInput()" class="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Add Expense
+                    </button>
+                </div>
+            </header>
+
+            <!-- Workspace Wrapper -->
+            <div class="flex-1 p-6 md:p-8 space-y-6 max-w-7xl w-full mx-auto">
+                
+                <!-- DASHBOARD TAB VIEW -->
+                <div id="tab-dashboard" class="space-y-6">
+                    
+                    <!-- Dynamic Greetings Header matching image_d33639.png -->
+                    <div class="space-y-1">
+                        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+                            Welcome back, <span id="greeting-username" class="text-slate-800">User</span> 👋
+                        </h1>
+                        <p class="text-slate-500 text-sm font-medium" id="current-calendar-cycle">Wednesday, July 15, 2026 · July budget cycle</p>
+                    </div>
+
+                    <!-- Heads up Alert Warn Layout (Peach background from image_d33639.png / image_d0ef85.png) -->
+                    <div id="overspend-banner" class="hidden bg-[#FFF5F3] border border-[#FDE2DC] p-4 rounded-xl flex items-center gap-3 text-[#A83925]">
+                        <div class="h-6 w-6 rounded bg-[#FCE3DD] flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-triangle-exclamation text-[#A83925]"></i>
+                        </div>
+                        <div class="text-xs md:text-sm">
+                            <span class="font-bold">Heads up — </span> <span id="overspend-banner-message">Your allowance usage has exceeded safe boundaries. Plan parameters close to depletion!</span>
+                        </div>
+                    </div>
+
+                    <!-- KPI Grid Row matching image_d33639.png -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- Monthly Budget KPI -->
+                        <div class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Monthly Budget</span>
+                                <div class="h-8 w-8 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
+                                    <i class="fa-regular fa-credit-card text-lg"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-baseline text-slate-900">
+                                    <span class="text-4xl font-extrabold" id="card-total-budget">₹1,500</span>
+                                    <span class="text-lg font-bold text-slate-400 ml-0.5">.00</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mt-3">
+                                    <div id="spent-progress-bar" class="bg-[#00C48C] h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                                <div class="flex justify-between text-[11px] text-slate-400 font-semibold pt-1">
+                                    <span id="progress-spent-hint">₹0.00 spent</span>
+                                    <span id="progress-left-hint">₹0.00 left</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Expenses KPI -->
+                        <div class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Expenses · <span id="cycle-label-kpi">July</span></span>
+                                <div class="h-8 w-8 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-500">
+                                    <i class="fa-regular fa-file-lines text-lg"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-baseline text-slate-900">
+                                    <span class="text-4xl font-extrabold" id="card-total-spent">₹0</span>
+                                    <span class="text-lg font-bold text-slate-400 ml-0.5">.00</span>
+                                </div>
+                                <p class="text-xs text-slate-400 flex items-center gap-1 pt-3">
+                                    <i class="fa-solid fa-arrow-trend-up text-indigo-400"></i>
+                                    <span>Calculated dynamically across active lists</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Remaining Balance KPI -->
+                        <div class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Remaining Balance</span>
+                                <div id="balance-icon-bg" class="h-8 w-8 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
+                                    <i class="fa-regular fa-shield text-lg" id="balance-icon"></i>
+                                </div>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-baseline text-slate-900">
+                                    <span class="text-4xl font-extrabold text-[#00C48C]" id="card-remaining-balance">₹0</span>
+                                    <span class="text-lg font-bold text-slate-400 ml-0.5">.00</span>
+                                </div>
+                                <p class="text-xs text-emerald-600 font-semibold pt-3" id="balance-status-alert">
+                                    Funding is healthy for the monthly limit
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Budget Categories Display with Circle SVGs -->
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Budget Categories</h2>
+                            <span class="text-xs font-bold text-slate-400">Where your money's going this month</span>
+                        </div>
+                        
+                        <!-- Pie Chart Grid matches image_d33639.png exactly -->
+                        <div id="category-progress-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+                            <!-- Populated dynamically via SVG logic in JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Operations Workspace Row -->
+                    <div class="grid grid-cols-1 gap-6">
+                        
+                        <!-- Expense Form -->
+                        <div id="expense-record-card" class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-4 transition-all duration-300">
+                            <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                                <div class="p-1.5 bg-[#2563EB]/10 text-[#2563EB] rounded-lg">
+                                    <i class="fa-solid fa-money-bill-transfer"></i>
+                                </div>
+                                <h2 class="text-lg font-bold text-slate-800">Record Student Expenditure</h2>
+                            </div>
+
+                            <form id="expense-form" onsubmit="handleAddExpense(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Amount (₹)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3.5 top-2.5 text-slate-400 font-extrabold">₹</span>
+                                            <input type="number" id="form-amount" required min="1" placeholder="e.g. 150" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-8 pr-4 text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all duration-200">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Category</label>
+                                        <select id="form-category" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-3 text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all duration-200">
+                                            <option value="Food">🍔 Food</option>
+                                            <option value="Books & Stationery">📚 Books & Stationery</option>
+                                            <option value="Entertainment">🍿 Entertainment</option>
+                                            <option value="Rent & Utilities">🏠 Rent & Utilities</option>
+                                            <option value="Others">⚙️ Others</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Description</label>
+                                        <input type="text" id="form-description" required placeholder="e.g. Reference Book" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all duration-200">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Date</label>
+                                        <input type="date" id="form-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all duration-200">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end pt-2">
+                                    <button type="submit" class="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold px-6 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 shadow-lg shadow-blue-500/10">
+                                        <span>Save Expense Record</span>
+                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Transaction History List -->
+                    <div id="transactions-section" class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden transition-all duration-300">
+                        <div class="px-6 py-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-50/50">
+                            <div>
+                                <h2 class="text-lg font-bold text-slate-800">Transaction History</h2>
+                                <p class="text-xs text-slate-400">Manage, edit, or purge registered ledger entries</p>
+                            </div>
+                            <div class="flex items-center gap-3 w-full sm:w-auto">
+                                <select id="filter-category" onchange="renderApp()" class="bg-white border border-slate-200 rounded-xl text-xs py-2 px-3 text-slate-600 focus:outline-none focus:border-[#00C48C]">
+                                    <option value="All">All Categories</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Books & Stationery">Books & Stationery</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Rent & Utilities">Rent & Utilities</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                                <button onclick="clearAllExpenses()" class="text-xs border border-rose-200 text-rose-500 bg-rose-50/50 hover:bg-rose-50 hover:border-rose-300 px-3 py-2 rounded-xl transition-all font-semibold">
+                                    Purge All
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-100 bg-slate-100/30 text-slate-400 text-[11px] font-bold uppercase tracking-wider">
+                                        <th class="py-3.5 px-6">Date</th>
+                                        <th class="py-3.5 px-6">Description</th>
+                                        <th class="py-3.5 px-6">Category</th>
+                                        <th class="py-3.5 px-6 text-right">Amount</th>
+                                        <th class="py-3.5 px-6 text-center">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-table-body" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Rows populated dynamically -->
+                                </tbody>
+                            </table>
+                            <div id="empty-state" class="hidden py-12 text-center text-slate-400 text-sm space-y-2">
+                                <i class="fa-solid fa-receipt text-3xl text-slate-200"></i>
+                                <p>No transactions registered matching criteria. Record one above!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ANALYTICS TAB VIEW -->
+                <div id="tab-analytics" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-900">📊 Analytics & Spend Reporting</h2>
+                        <p class="text-slate-500 text-sm mt-1">Real-time analytical metrics, featuring high-fidelity visual representations modeled on <strong>image_d33639.png</strong>.</p>
+                    </div>
+
+                    <!-- Mapped Circle Progress Widget inside Analytics Section -->
+                    <div class="space-y-4">
+                        <div class="border-b border-slate-100 pb-2">
+                            <h3 class="text-base font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+                                <i class="fa-solid fa-chart-pie text-indigo-500"></i> Category Allocation Distribution
+                            </h3>
+                            <p class="text-xs text-slate-400">Exact circular pie representations showing target thresholds mapped on your current month calculations.</p>
+                        </div>
+                        
+                        <!-- Circle Progress Grid matching image_d33639.png visual assets -->
+                        <div id="analytics-category-progress-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
+                            <!-- Populated dynamically via JS with exact styled circular vectors from image_d33639.png -->
+                        </div>
+                    </div>
+
+                    <!-- KPI Statistics Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm">
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Savings Rate</span>
+                            <h4 id="analytics-savings-rate" class="text-2xl font-extrabold text-[#00C48C] mt-2">0%</h4>
+                            <p class="text-[10px] text-slate-400 mt-1">Allocated percentage remaining</p>
+                        </div>
+                        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm">
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Average Daily Spend</span>
+                            <h4 id="analytics-daily-average" class="text-2xl font-extrabold text-indigo-500 mt-2">₹0</h4>
+                            <p class="text-[10px] text-slate-400 mt-1">Estimations over monthly scope</p>
+                        </div>
+                        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm">
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Top Spending Target</span>
+                            <h4 id="analytics-top-category" class="text-2xl font-extrabold text-amber-500 mt-2">None</h4>
+                            <p class="text-[10px] text-slate-400 mt-1">Highest cumulative allocation</p>
+                        </div>
+                        <div class="bg-white border border-slate-100 p-5 rounded-2xl shadow-sm">
+                            <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Security Check</span>
+                            <h4 id="analytics-risk-indicator" class="text-2xl font-extrabold text-[#00C48C] mt-2">Perfect</h4>
+                            <p class="text-[10px] text-slate-400 mt-1">Automated depletion velocity check</p>
+                        </div>
+                    </div>
+
+                    <!-- High Fidelity Interactive Graphics -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Dynamically drawn SVG chart card -->
+                        <div class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                <h3 class="font-bold text-base text-slate-800">Category Expenditure (₹)</h3>
+                                <span class="text-[10px] bg-emerald-50 text-[#00C48C] px-2.5 py-0.5 rounded-full font-bold">Dynamic Scale</span>
+                            </div>
+                            <div class="flex items-end justify-between h-64 border-b border-slate-100 pb-2 px-4 pt-6" id="analytics-bar-chart-container">
+                                <!-- Populated dynamically by JS engine -->
+                            </div>
+                        </div>
+
+                        <!-- Visual Breakdown Conservations Card -->
+                        <div class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4">
+                            <div>
+                                <h3 class="font-bold text-base text-slate-800 border-b border-slate-100 pb-3">Allowance Conservation Analysis</h3>
+                                <div class="space-y-4 pt-3">
+                                    
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between text-xs font-semibold">
+                                            <span class="text-slate-400">Total Setup Capital</span>
+                                            <span id="analysis-allowance-val" class="text-slate-700 font-bold">₹0.00</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                            <div class="bg-indigo-500 h-full w-full rounded-full"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between text-xs font-semibold">
+                                            <span class="text-slate-400">Active Outflow</span>
+                                            <span id="analysis-consumed-val" class="text-rose-500 font-bold">₹0.00</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                            <div id="analysis-consumed-bar" class="bg-[#A83925] h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1">
+                                        <div class="flex justify-between text-xs font-semibold">
+                                            <span class="text-slate-400">Conserved Safety Threshold</span>
+                                            <span id="analysis-reserves-val" class="text-[#00C48C] font-bold">₹0.00</span>
+                                        </div>
+                                        <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                            <div id="analysis-reserves-bar" class="bg-[#00C48C] h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs text-slate-500 flex items-start gap-3">
+                                <i class="fa-regular fa-lightbulb text-indigo-500 text-lg mt-0.5 shrink-0"></i>
+                                <p id="analysis-insight-message">Maintain a solid budget limit. Regularly audit your books and entertainment spendings for maximum monthly returns.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PROFILE TAB VIEW -->
+                <div id="tab-profile" class="hidden space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                        <h2 class="text-xl font-bold text-slate-900">👤 Student Profile Setup</h2>
+                        <p class="text-slate-500 text-sm mt-1">Configure your personal academic, session targets, and cohort parameters.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Left Summary Dashboard Card -->
+                        <div class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-6">
+                            <div class="space-y-4 text-center">
+                                <div class="relative w-24 h-24 mx-auto rounded-full bg-[#1E293B] border-4 border-slate-100 flex items-center justify-center text-3xl font-extrabold text-white">
+                                    <span id="profile-avatar-letters">US</span>
+                                </div>
+                                <div>
+                                    <h3 id="profile-card-name" class="font-bold text-lg text-slate-800">Student User</h3>
+                                    <p id="profile-card-email" class="text-xs text-slate-400">student@college.edu</p>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-100 pt-4 space-y-3">
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400 font-semibold uppercase">Academic ID/Roll:</span>
+                                    <span id="profile-card-roll" class="font-bold text-slate-700">2026CS1042</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400 font-semibold uppercase">Institution:</span>
+                                    <span id="profile-card-college" class="font-bold text-slate-700">Engineering College</span>
+                                </div>
+                                <div class="flex justify-between text-xs">
+                                    <span class="text-slate-400 font-semibold uppercase">Limit Capital:</span>
+                                    <span id="profile-card-allowance" class="font-bold text-[#00C48C]">₹1,500.00</span>
+                                </div>
+                            </div>
+
+                            <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl text-center text-xs font-semibold border border-emerald-100">
+                                <i class="fa-solid fa-user-shield mr-1"></i> Authorized Academic Session
+                            </div>
+                        </div>
+
+                        <!-- Form Profile updates -->
+                        <div class="bg-white border border-slate-100 p-6 rounded-2xl lg:col-span-2 shadow-sm">
+                            <h3 class="font-bold text-base text-slate-800 mb-4 border-b border-slate-100 pb-3">Edit Session Properties</h3>
+                            <form id="profile-edit-form" onsubmit="handleProfileUpdate(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Student Name</label>
+                                        <input type="text" id="profile-form-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] focus:bg-white transition-all">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">University / College</label>
+                                        <input type="text" id="profile-form-college" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] focus:bg-white transition-all">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Academic Roll Number</label>
+                                        <input type="text" id="profile-form-roll" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] focus:bg-white transition-all">
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-center mb-2">
+                                            <label class="text-xs font-bold text-slate-500 uppercase">Monthly Allowance Target (₹)</label>
+                                            <span class="text-[10px] text-amber-500 font-semibold italic">Configure via categories modal</span>
+                                        </div>
+                                        <input type="number" id="profile-form-allowance" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl py-2 px-3 text-slate-500 cursor-not-allowed" title="Update budgets using the categories configuration button.">
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-end pt-2">
+                                    <button type="submit" class="bg-[#00C48C] hover:bg-[#00B07C] text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-500/10">
+                                        Apply Profile Updates
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- DEV HUB PORTAL VIEW -->
+                <div id="tab-developer" class="hidden space-y-6">
+                    <div class="bg-[#0B1220] text-slate-100 p-6 rounded-2xl border border-slate-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-xl">
+                        <div>
+                            <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                                <span>💻</span> Student Intern Dev Hub Sandbox
+                            </h2>
+                            <p class="text-slate-400 text-sm mt-1">Mock and test production Flask servers, JSON payload parameters, and SQLite configurations locally.</p>
+                        </div>
+                        <button onclick="simulateNetworkDelay()" class="bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 hover:text-white border border-indigo-500/30 px-3.5 py-2 rounded-xl text-xs font-bold transition-all">
+                            ⚡ Toggle Connection Ping Latency (1s)
+                        </button>
+                    </div>
+
+                    <!-- Virtual DBMS Sandbox -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        
+                        <!-- Interactive SQLite Viewer -->
+                        <div class="bg-[#0B1220] border border-slate-800 rounded-2xl p-6 flex flex-col h-[500px] shadow-lg">
+                            <div class="flex justify-between items-center mb-4 border-b border-slate-800/60 pb-3">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-database text-[#00C48C]"></i> SQLite Console Explorer
+                                </span>
+                                <span class="text-[10px] code-font px-2.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold">SQLITE3: schema_fintrack.db</span>
+                            </div>
+
+                            <div class="flex-1 overflow-y-auto space-y-6 pr-1">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2 bg-slate-950 px-3 py-2 rounded-lg border border-slate-800">
+                                        <span class="text-[11px] font-bold code-font text-slate-300">TABLE: budgets</span>
+                                    </div>
+                                    <div class="overflow-x-auto rounded-xl border border-slate-800/80">
+                                        <table class="w-full text-left text-[11px] code-font">
+                                            <thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                                                <tr>
+                                                    <th class="p-2">id</th>
+                                                    <th class="p-2">total_budget</th>
+                                                    <th class="p-2">month</th>
+                                                    <th class="p-2">year</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="db-budgets-body" class="divide-y divide-slate-800"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center mb-2 bg-slate-950 px-3 py-2 rounded-lg border border-slate-800">
+                                        <span class="text-[11px] font-bold code-font text-slate-300">TABLE: expenses</span>
+                                        <span id="db-expenses-count" class="text-[9px] text-slate-500 font-extrabold tracking-wider">0 ROW(S)</span>
+                                    </div>
+                                    <div class="overflow-x-auto rounded-xl border border-slate-800/80">
+                                        <table class="w-full text-left text-[11px] code-font">
+                                            <thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
+                                                <tr>
+                                                    <th class="p-2">id</th>
+                                                    <th class="p-2">amount</th>
+                                                    <th class="p-2">category</th>
+                                                    <th class="p-2">description</th>
+                                                    <th class="p-2">date_created</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="db-expenses-body" class="divide-y divide-slate-800"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live Terminal Logs -->
+                        <div class="bg-[#0B1220] border border-slate-800 rounded-2xl p-6 flex flex-col h-[500px] shadow-lg">
+                            <div class="flex justify-between items-center mb-4 border-b border-slate-800/60 pb-3">
+                                <span class="font-bold text-white text-sm flex items-center gap-2">
+                                    <i class="fa-solid fa-terminal text-emerald-400"></i> JSON REST API Logs
+                                </span>
+                                <button onclick="clearConsoleLogs()" class="text-[11px] text-slate-500 hover:text-slate-300 font-bold transition-all">Wipe Terminal</button>
+                            </div>
+                            <div id="console-logger-terminal" class="flex-1 bg-slate-950 rounded-xl border border-slate-800 p-4 overflow-y-auto text-[11px] code-font space-y-3 flex flex-col">
+                                <div class="text-slate-500">[System] Real-time loop listening on virtual interface...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Production code script exports -->
+                    <div class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                        <div class="px-6 py-4 border-b border-slate-100">
+                            <h3 class="text-lg font-bold text-slate-800">📂 Python Production Code Exporter</h3>
+                            <p class="text-slate-400 text-xs mt-1">Ready-to-use backend scripts detailing profiles, logins, & budget controls for production submissions.</p>
+                        </div>
+
+                        <div class="flex bg-slate-50 border-b border-slate-100 text-xs overflow-x-auto">
+                            <button id="btn-code-flask" onclick="switchCodeTab('flask')" class="px-6 py-3 border-r border-slate-100 font-bold text-indigo-500 transition-all bg-white">app.py (Flask API)</button>
+                            <button id="btn-code-initdb" onclick="switchCodeTab('initdb')" class="px-6 py-3 text-slate-400 hover:text-slate-200 transition-all">init_db.py (SQLite Schema)</button>
+                        </div>
+
+                        <div class="p-6 bg-slate-950">
+                            <div class="flex justify-end mb-3">
+                                <button onclick="copyActiveCodeToClipboard()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-4 py-2 rounded-lg border border-slate-700 hover:border-slate-600 transition-all flex items-center gap-2">
+                                    <i class="fa-regular fa-copy"></i> <span>Copy File Code</span>
+                                </button>
+                            </div>
+
+                            <!-- Flask code -->
+                            <pre id="code-flask-block" class="bg-slate-900 text-slate-300 p-4 rounded-xl border border-slate-800 text-xs overflow-x-auto max-h-[400px] code-font"><code>from flask import Flask, jsonify, request
+from flask_cors import CORS
+import sqlite3
+
+app = Flask(__name__)
+CORS(app)
+
+DATABASE = 'sqlite3_fintrack.db'
+
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# AUTHENTICATION ROUTE (SUPPORTING DYNAMIC REGISTRATIONS)
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    # Authenticating dynamic user schema
+    return jsonify({
+        "status": "success",
+        "user": {
+            "name": "Rahul Sharma",
+            "email": email,
+            "rollNo": "2026CS1042",
+            "college": "Indian Institute of Technology",
+            "allowance": 1500
+        }
+    }), 200
+
+@app.route('/api/dashboard', methods=['GET'])
+def get_dashboard():
+    try:
+        conn = get_db_connection()
+        budget_row = conn.execute('SELECT total_budget FROM budgets ORDER BY id DESC LIMIT 1').fetchone()
+        total_budget = budget_row['total_budget'] if budget_row else 1500
+        
+        spent_row = conn.execute('SELECT SUM(amount) as total_spent FROM expenses').fetchone()
+        total_spent = spent_row['total_spent'] if spent_row['total_spent'] is not None else 0
+        
+        expenses_rows = conn.execute('SELECT * FROM expenses ORDER BY date_created DESC LIMIT 10').fetchall()
+        
+        transactions = []
+        for row in expenses_rows:
+            transactions.append({
+                'id': row['id'],
+                'amount': row['amount'],
+                'category': row['category'],
+                'description': row['description'],
+                'date_created': row['date_created']
+            })
+            
+        remaining_balance = total_budget - total_spent
+        alert_flag = (total_spent / total_budget) >= 0.90 if total_budget > 0 else False
+            
+        return jsonify({
+            'total_budget': total_budget,
+            'total_spent': total_spent,
+            'remaining_balance': remaining_balance,
+            'alert': alert_flag,
+            'transactions': transactions
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        conn.close()
+
+# UPDATE PROFILE PROFILE ROUTE
+@app.route('/api/profile/update', methods=['POST'])
+def update_profile():
+    data = request.json
+    # Process modifications on user/student meta entries
+    return jsonify({"message": "Profile synced successfully", "user": data}), 200
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)</code></pre>
+
+                            <!-- DB Seed code -->
+                            <pre id="code-initdb-block" class="hidden bg-slate-900 text-slate-300 p-4 rounded-xl border border-slate-800 text-xs overflow-x-auto max-h-[400px] code-font"><code>import sqlite3
+
+def init_db():
+    conn = sqlite3.connect('sqlite3_fintrack.db')
+    print("Database opened and connected successfully.")
+    
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS budgets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            total_budget REAL NOT NULL,
+            month TEXT NOT NULL,
+            year INTEGER NOT NULL
+        )
+    ''')
+
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS expenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            amount REAL NOT NULL,
+            category TEXT NOT NULL,
+            description TEXT NOT NULL,
+            date_created TEXT NOT NULL
+        )
+    ''')
+    
+    # Check budget count
+    cursor = conn.execute('SELECT COUNT(*) FROM budgets')
+    if cursor.fetchone()[0] == 0:
+        conn.execute("INSERT INTO budgets (total_budget, month, year) VALUES (1500.0, 'July', 2026)")
+        print("Default allowance of ₹1,500 generated.")
+
+    conn.commit()
+    conn.close()
+
+if __name__ == '__main__':
+    init_db()</code></pre>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Set Budget Dialog Modal -->
+    <div id="budget-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4">
+        <div class="bg-white border border-slate-100 max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-bold text-slate-800">Configure Category Budgets</h3>
+                <button onclick="closeSetBudgetModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                <p class="text-xs text-slate-400 font-medium">Set custom allowances for each category. The total monthly budget will adjust automatically.</p>
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">🍔 Food Budget (₹)</label>
+                    <input type="number" id="modal-cat-food" min="0" oninput="calculateTotalFromCategories()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">📚 Books & Stationery Budget (₹)</label>
+                    <input type="number" id="modal-cat-books" min="0" oninput="calculateTotalFromCategories()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">🍿 Entertainment Budget (₹)</label>
+                    <input type="number" id="modal-cat-ent" min="0" oninput="calculateTotalFromCategories()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">🏠 Rent & Utilities Budget (₹)</label>
+                    <input type="number" id="modal-cat-rent" min="0" oninput="calculateTotalFromCategories()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">⚙️ Others Budget (₹)</label>
+                    <input type="number" id="modal-cat-others" min="0" oninput="calculateTotalFromCategories()" class="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-slate-800 focus:outline-none focus:border-[#00C48C] transition-all">
+                </div>
+                
+                <div class="pt-2 border-t border-slate-100">
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Calculated Total Budget:</span>
+                        <span id="modal-calculated-total" class="text-base font-extrabold text-[#00C48C]">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button onclick="closeSetBudgetModal()" class="px-4 py-2 text-sm font-semibold text-slate-400 hover:text-slate-600">Cancel</button>
+                <button onclick="handleSetBudget()" class="bg-[#00C48C] hover:bg-[#00B07C] text-white text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-md shadow-emerald-500/10">Save Budgets</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* 
+           VIRTUAL SYSTEM ENGINE
+           Consistent state parameters matching image_d33639.png and image_d0ef85.png perfectly!
+        */
+        const INITIAL_BUDGET = 1500;
+        const INITIAL_EXPENSES = [
+            { id: 101, amount: 950, category: 'Rent & Utilities', description: 'Hostel Rent Utility', date_created: '2026-07-01' },
+            { id: 102, amount: 210, category: 'Food', description: 'Meal Prep Groceries', date_created: '2026-07-05' },
+            { id: 103, amount: 140, category: 'Books & Stationery', description: 'Exam Notebooks', date_created: '2026-07-08' },
+            { id: 104, amount: 95, category: 'Entertainment', description: 'Movie night tickets', date_created: '2026-07-10' }
+        ];
+
+        const DEFAULT_CATEGORY_LIMITS = {
+            'Food': 300,
+            'Books & Stationery': 150,
+            'Entertainment': 100,
+            'Rent & Utilities': 950,
+            'Others': 0
+        };
+
+        let state = {
+            budget: INITIAL_BUDGET,
+            categoryLimits: { ...DEFAULT_CATEGORY_LIMITS },
+            expenses: [...INITIAL_EXPENSES],
+            simulateDelay: false,
+            isAuthenticated: false,
+            currentAuthTab: 'signin',
+            user: {
+                name: "Rahul Sharma",
+                email: "rahul@iitbombay.ac.in",
+                rollNo: "2028CS1042",
+                college: "IIT Bombay",
+                allowance: 1500
+            },
+            // Holds user-registered credentials locally
+            customAccounts: [] 
+        };
+
+        // Load Persistent Storage configurations
+        if (localStorage.getItem('fintrack_auth_state') === "true") {
+            state.isAuthenticated = true;
+        }
+        if (localStorage.getItem('fintrack_budget')) {
+            state.budget = parseFloat(localStorage.getItem('fintrack_budget'));
+        }
+        if (localStorage.getItem('fintrack_category_limits')) {
+            state.categoryLimits = JSON.parse(localStorage.getItem('fintrack_category_limits'));
+        }
+        if (localStorage.getItem('fintrack_expenses')) {
+            state.expenses = JSON.parse(localStorage.getItem('fintrack_expenses'));
+        }
+        if (localStorage.getItem('fintrack_profile')) {
+            state.user = JSON.parse(localStorage.getItem('fintrack_profile'));
+        }
+        if (localStorage.getItem('fintrack_custom_accounts')) {
+            state.customAccounts = JSON.parse(localStorage.getItem('fintrack_custom_accounts'));
+        }
+
+        let currentCodeTab = 'flask';
+
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('form-date').value = today;
+            
+            // Validate authentication bounds
+            evaluateAuthState();
+        };
+
+        // Password Visibility Toggle Utility
+        function togglePasswordVisibility(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+            
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.className = "fa-regular fa-eye-slash text-sm text-white";
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.className = "fa-regular fa-eye text-sm";
+            }
+        }
+
+        // Toggle Auth View Mode
+        function toggleAuthMode(mode) {
+            state.currentAuthTab = mode;
+            const btnSignin = document.getElementById('btn-toggle-signin');
+            const btnSignup = document.getElementById('btn-toggle-signup');
+            const formSignin = document.getElementById('signin-form');
+            const formSignup = document.getElementById('signup-form');
+
+            if (mode === 'signin') {
+                btnSignin.className = "flex-1 py-2 text-xs font-bold text-white rounded-lg bg-slate-800/60 border border-slate-700/50 transition-all";
+                btnSignup.className = "flex-1 py-2 text-xs font-bold text-slate-400 rounded-lg hover:text-white transition-all";
+                formSignin.classList.remove('hidden');
+                formSignup.classList.add('hidden');
+            } else {
+                btnSignup.className = "flex-1 py-2 text-xs font-bold text-white rounded-lg bg-indigo-600 transition-all";
+                btnSignin.className = "flex-1 py-2 text-xs font-bold text-slate-400 rounded-lg hover:text-white transition-all";
+                formSignin.classList.add('hidden');
+                formSignup.classList.remove('hidden');
+            }
+        }
+
+        function evaluateAuthState() {
+            const viewLogin = document.getElementById('view-login');
+            const viewApp = document.getElementById('view-app');
+
+            if (state.isAuthenticated) {
+                viewLogin.classList.add('hidden');
+                viewApp.classList.remove('hidden');
+                
+                // Load User meta inside forms
+                document.getElementById('profile-form-name').value = state.user.name;
+                document.getElementById('profile-form-college').value = state.user.college;
+                document.getElementById('profile-form-roll').value = state.user.rollNo;
+                document.getElementById('profile-form-allowance').value = state.budget;
+
+                renderApp();
+            } else {
+                viewLogin.classList.remove('hidden');
+                viewApp.classList.add('hidden');
+            }
+        }
+
+        // Handle Custom Account Onboarding/Registration
+        async function handleRegister(e) {
+            e.preventDefault();
+            
+            const regName = document.getElementById('reg-name').value;
+            const regEmail = document.getElementById('reg-email').value;
+            const regBudget = parseFloat(document.getElementById('reg-budget').value) || INITIAL_BUDGET;
+            const regPassword = document.getElementById('reg-password').value;
+
+            // Log registration to mock server logs
+            logConsole("HTTP", `POST /api/auth/register - DATA: {"name": "${regName}", "email": "${regEmail}", "budget": ${regBudget}}`);
+
+            if (state.simulateDelay) {
+                showToast("Initializing Workspace", "Provisioning virtual database sandbox tables...", "info");
+                await wait(1000);
+            }
+
+            // Check if account already exists
+            const existingAccount = state.customAccounts.find(acc => acc.email.toLowerCase() === regEmail.toLowerCase());
+            if (existingAccount) {
+                showToast("Registration Refused", "This email address is already bound to a student schema.", "error");
+                logConsole("HTTP", `Response 409 Conflict - Email address occupied`);
+                return;
+            }
+
+            // Save new user credentials locally
+            const newAccount = {
+                name: regName,
+                email: regEmail,
+                password: regPassword,
+                budget: regBudget,
+                college: "Custom University",
+                rollNo: "CS" + Math.floor(100000 + Math.random() * 900000)
+            };
+
+            state.customAccounts.push(newAccount);
+            localStorage.setItem('fintrack_custom_accounts', JSON.stringify(state.customAccounts));
+
+            // Log DB execution
+            logConsole("Database", `SQL: INSERT INTO users (name, email, password, allowance) VALUES ('${regName}', '${regEmail}', '***', ${regBudget})`);
+
+            // Instantly transition and authenticate as custom user
+            state.user = {
+                name: newAccount.name,
+                email: newAccount.email,
+                rollNo: newAccount.rollNo,
+                college: newAccount.college,
+                allowance: newAccount.budget
+            };
+            state.budget = newAccount.budget;
+            
+            // Distribute budget proportionally among categories when new account starts
+            state.categoryLimits = {
+                'Food': Math.round(newAccount.budget * 0.2),
+                'Books & Stationery': Math.round(newAccount.budget * 0.1),
+                'Entertainment': Math.round(newAccount.budget * 0.1),
+                'Rent & Utilities': Math.round(newAccount.budget * 0.5),
+                'Others': Math.round(newAccount.budget * 0.1)
+            };
+
+            state.isAuthenticated = true;
+            state.expenses = []; // Wipe current expenses array to start clean for custom onboarding
+
+            localStorage.setItem('fintrack_auth_state', "true");
+            saveToLocalStorage();
+            evaluateAuthState();
+
+            showToast("Workspace Active", `Welcome aboard, ${regName}!`, "success");
+            logConsole("HTTP", `Response 201 Created - Custom Token generated.`);
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('login-email').value;
+            const passwordInput = document.getElementById('login-password').value;
+
+            logConsole("HTTP", `POST /api/auth/login - DATA: {"email": "${emailInput}"}`);
+
+            if (state.simulateDelay) {
+                showToast("Authenticating", "Contacting virtual security microservice...", "info");
+                await wait(1000);
+            }
+
+            // Check registered user account store
+            const matchedAccount = state.customAccounts.find(
+                acc => acc.email.toLowerCase() === emailInput.toLowerCase() && acc.password === passwordInput
+            );
+
+            if (matchedAccount) {
+                state.isAuthenticated = true;
+                state.user = {
+                    name: matchedAccount.name,
+                    email: matchedAccount.email,
+                    rollNo: matchedAccount.rollNo,
+                    college: matchedAccount.college,
+                    allowance: matchedAccount.budget
+                };
+                state.budget = matchedAccount.budget;
+                localStorage.setItem('fintrack_auth_state', "true");
+                logConsole("HTTP", `Response 200 OK - Authorized Custom Token generated.`);
+                
+                saveToLocalStorage();
+                evaluateAuthState();
+                showToast("Access Granted", `Welcome back, ${state.user.name}!`, "success");
+            } else {
+                logConsole("HTTP", `Response 401 Unauthorized - Invalid passwords combination.`);
+                showToast("Error", "Account not found or password incorrect. Please register first!", "error");
+            }
+        }
+
+        function handleLogout() {
+            logConsole("HTTP", "POST /api/auth/logout - Token invalidated.");
+            state.isAuthenticated = false;
+            localStorage.setItem('fintrack_auth_state', "false");
+            
+            // Clean up temporary inputs
+            document.getElementById('login-password').value = '';
+            document.getElementById('reg-password').value = '';
+            
+            evaluateAuthState();
+            showToast("Session Closed", "Successfully logged out from FinTrack database.", "info");
+        }
+
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            
+            const updatedProfile = {
+                name: document.getElementById('profile-form-name').value,
+                college: document.getElementById('profile-form-college').value,
+                rollNo: document.getElementById('profile-form-roll').value
+            };
+
+            logConsole("HTTP", `POST /api/profile/update - DATA: ${JSON.stringify(updatedProfile)}`);
+
+            if (state.simulateDelay) {
+                showToast("Saving Profile", "Updating academic registry details...", "info");
+                await wait(1000);
+            }
+
+            state.user.name = updatedProfile.name;
+            state.user.college = updatedProfile.college;
+            state.user.rollNo = updatedProfile.rollNo;
+
+            localStorage.setItem('fintrack_profile', JSON.stringify(state.user));
+
+            logConsole("Database", `SQL: UPDATE profile SET name='${updatedProfile.name}', college='${updatedProfile.college}'`);
+
+            renderApp();
+            showToast("Success", "Profile guidelines applied!", "success");
+        }
+
+        function switchTab(tabId) {
+            const tabs = ['dashboard', 'analytics', 'profile', 'developer'];
+            tabs.forEach(t => {
+                const element = document.getElementById(`tab-${t}`);
+                if (t === tabId) {
+                    element.classList.remove('hidden');
+                } else {
+                    element.classList.add('hidden');
+                }
+            });
+
+            // Active Tab classes configuration
+            const btnMap = {
+                'dashboard': 'sidebar-dashboard-btn',
+                'analytics': 'sidebar-analytics-btn',
+                'profile': 'sidebar-profile-btn',
+                'developer': 'sidebar-dev-btn'
+            };
+
+            Object.keys(btnMap).forEach(key => {
+                const btn = document.getElementById(btnMap[key]);
+                if (btn) {
+                    if (key === tabId) {
+                        btn.className = "sidebar-item-active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-white text-left";
+                    } else {
+                        btn.className = "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-150 hover:bg-slate-800/50 hover:text-slate-200 text-left";
+                    }
+                }
+            });
+
+            if (tabId === 'analytics') {
+                renderAnalyticsCharts();
+            }
+        }
+
+        function scrollToTransactions() {
+            switchTab('dashboard');
+            document.getElementById('transactions-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function focusExpenseInput() {
+            switchTab('dashboard');
+            document.getElementById('expense-record-card').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('form-amount').focus();
+        }
+
+        function openAddExpenseSection() {
+            focusExpenseInput();
+        }
+
+        /* 
+           Constructs visually exact SVG pie wedge vectors starting from 12 o'clock (-90 deg), 
+           replicating the high-contrast dashboard category cards seen in image_d33639.png.
+        */
+        function getPieChartSVG(percent, colorHex) {
+            const r = 40;
+            const cx = 50;
+            const cy = 50;
+            
+            // Safe bounds optimization
+            if (percent >= 100) {
+                return `<svg viewBox="0 0 100 100" class="w-24 h-24 sm:w-28 sm:h-28">
+                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="${colorHex}" />
+                    <text x="${cx}" y="${cy + 4}" fill="#ffffff" font-size="12" font-weight="800" text-anchor="middle">100%</text>
+                </svg>`;
+            }
+
+            if (percent <= 0) {
+                return `<svg viewBox="0 0 100 100" class="w-24 h-24 sm:w-28 sm:h-28">
+                    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#E2E8F0" />
+                    <text x="${cx}" y="${cy + 4}" fill="#64748B" font-size="12" font-weight="800" text-anchor="middle">0%</text>
+                </svg>`;
+            }
+            
+            const angle = (percent / 100) * 360;
+            const startAngleRad = -Math.PI / 2;
+            const endAngleRad = startAngleRad + (angle * Math.PI) / 180;
+            
+            const x1 = cx + r * Math.cos(startAngleRad);
+            const y1 = cy + r * Math.sin(startAngleRad);
+            const x2 = cx + r * Math.cos(endAngleRad);
+            const y2 = cy + r * Math.sin(endAngleRad);
+            
+            const largeArc = percent > 50 ? 1 : 0;
+            const pathData = `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+            
+            return `<svg viewBox="0 0 100 100" class="w-24 h-24 sm:w-28 sm:h-28">
+                <circle cx="${cx}" cy="${cy}" r="${r}" fill="#E2E8F0" />
+                <path d="${pathData}" fill="${colorHex}" />
+                <text x="${cx}" y="${cy + 4}" fill="#ffffff" font-size="11" font-weight="900" text-anchor="middle" style="text-shadow: 0px 1px 2px rgba(0,0,0,0.5);">${percent}%</text>
+            </svg>`;
+        }
+
+        function renderApp() {
+            const expenses = state.expenses;
+            const budget = state.budget;
+
+            // Render details globally
+            document.getElementById('greeting-username').innerText = state.user.name;
+            document.getElementById('sidebar-username').innerText = state.user.name;
+            
+            // Profile views initialization
+            document.getElementById('profile-card-name').innerText = state.user.name;
+            document.getElementById('profile-card-roll').innerText = state.user.rollNo;
+            document.getElementById('profile-card-college').innerText = state.user.college;
+            document.getElementById('profile-card-allowance').innerText = `₹${budget.toLocaleString()}`;
+            document.getElementById('profile-form-allowance').value = budget;
+
+            // Adjust Initials icon letters
+            const initialLetters = state.user.name.split(" ").map(w => w[0]).join("").substring(0,2).toUpperCase();
+            document.getElementById('profile-avatar-letters').innerText = initialLetters;
+            document.getElementById('sidebar-avatar-letters').innerText = initialLetters;
+
+            let totalSpent = 0;
+            const categorySums = { 'Food': 0, 'Books & Stationery': 0, 'Entertainment': 0, 'Rent & Utilities': 0, 'Others': 0 };
+
+            expenses.forEach(exp => {
+                totalSpent += parseFloat(exp.amount);
+                if (categorySums.hasOwnProperty(exp.category)) {
+                    categorySums[exp.category] += parseFloat(exp.amount);
+                } else {
+                    categorySums['Others'] += parseFloat(exp.amount);
+                }
+            });
+
+            const remaining = budget - totalSpent;
+            const spentPercent = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
+
+            // Update KPI visuals
+            document.getElementById('card-total-budget').innerText = `₹${budget.toLocaleString()}`;
+            document.getElementById('card-total-spent').innerText = `₹${totalSpent.toLocaleString()}`;
+            document.getElementById('card-remaining-balance').innerText = `₹${remaining.toLocaleString()}`;
+
+            document.getElementById('progress-spent-hint').innerText = `₹${totalSpent.toLocaleString()} spent`;
+            document.getElementById('progress-left-hint').innerText = `₹${remaining.toLocaleString()} left`;
+
+            const progressBar = document.getElementById('spent-progress-bar');
+            progressBar.style.width = `${Math.min(spentPercent, 100)}%`;
+
+            const warningBanner = document.getElementById('overspend-banner');
+            const alertText = document.getElementById('balance-status-alert');
+            const alertIconBg = document.getElementById('balance-icon-bg');
+            const alertIcon = document.getElementById('balance-icon');
+
+            if (spentPercent >= 90) {
+                progressBar.className = "bg-[#A83925] h-full rounded-full transition-all duration-500";
+                warningBanner.classList.remove('hidden');
+                document.getElementById('overspend-banner-message').innerText = `Warning — Active targets have depleted over ${spentPercent}% of your setup monthly target.`;
+                
+                alertText.innerText = `Only ${100 - spentPercent}% of budget left this month`;
+                alertText.className = "text-xs text-[#A83925] font-bold pt-3";
+                alertIconBg.className = "h-8 w-8 bg-rose-50 rounded-xl flex items-center justify-center text-[#A83925]";
+                alertIcon.className = "fa-regular fa-shield-xmark text-lg";
+            } else if (spentPercent >= 75) {
+                progressBar.className = "bg-amber-500 h-full rounded-full transition-all duration-500";
+                warningBanner.classList.remove('hidden');
+                document.getElementById('overspend-banner-message').innerText = `Heads up — You have spent ${spentPercent}% of your target monthly allowance. Plan carefully.`;
+                
+                alertText.innerText = `${100 - spentPercent}% of monthly budget remains`;
+                alertText.className = "text-xs text-amber-600 font-semibold pt-3";
+                alertIconBg.className = "h-8 w-8 bg-amber-50 rounded-xl flex items-center justify-center text-amber-500";
+                alertIcon.className = "fa-regular fa-shield text-lg";
+            } else {
+                progressBar.className = "bg-[#00C48C] h-full rounded-full transition-all duration-500";
+                warningBanner.classList.add('hidden');
+                
+                alertText.innerText = `Funding is healthy. ${100 - spentPercent}% remaining.`;
+                alertText.className = "text-xs text-emerald-600 font-semibold pt-3";
+                alertIconBg.className = "h-8 w-8 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500";
+                alertIcon.className = "fa-regular fa-shield text-lg";
+            }
+
+            const tableBody = document.getElementById('transactions-table-body');
+            const emptyState = document.getElementById('empty-state');
+            tableBody.innerHTML = '';
+
+            const activeFilter = document.getElementById('filter-category').value;
+            const filteredExpenses = expenses.filter(exp => activeFilter === 'All' || exp.category === activeFilter);
+            const sortedExpenses = [...filteredExpenses].sort((a,b) => new Date(b.date_created) - new Date(a.date_created));
+
+            if (sortedExpenses.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                sortedExpenses.forEach(exp => {
+                    const row = document.createElement('tr');
+                    row.className = "hover:bg-slate-50 transition-colors";
+                    const dateFormatted = new Date(exp.date_created).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                    let pillColors = "bg-slate-100 text-slate-700";
+                    if (exp.category === "Food") pillColors = "bg-amber-50 text-amber-700 border border-amber-100";
+                    if (exp.category === "Books & Stationery") pillColors = "bg-cyan-50 text-cyan-700 border border-cyan-100";
+                    if (exp.category === "Entertainment") pillColors = "bg-purple-50 text-purple-700 border border-purple-100";
+                    if (exp.category === "Rent & Utilities") pillColors = "bg-rose-50 text-rose-700 border border-rose-100";
+
+                    row.innerHTML = `
+                        <td class="py-3.5 px-6 text-slate-400 font-medium text-xs">${dateFormatted}</td>
+                        <td class="py-3.5 px-6 text-slate-800 font-bold">${escapeHTML(exp.description)}</td>
+                        <td class="py-3.5 px-6">
+                            <span class="px-2.5 py-1 text-[11px] rounded-full font-bold border ${pillColors}">${exp.category}</span>
+                        </td>
+                        <td class="py-3.5 px-6 text-right text-slate-900 font-extrabold">₹${parseFloat(exp.amount).toLocaleString()}</td>
+                        <td class="py-3.5 px-6 text-center">
+                            <button onclick="handleDeleteExpense(${exp.id})" class="text-slate-400 hover:text-rose-500 transition-colors p-1" title="Purge Record">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+
+            renderCategoryBudgets(categorySums);
+            renderVirtualDB();
+        }
+
+        function renderCategoryBudgets(sums) {
+            const categoryTargets = state.categoryLimits;
+            
+            const displayNames = {
+                'Food': 'Food',
+                'Books & Stationery': 'Books',
+                'Entertainment': 'Entertainment',
+                'Rent & Utilities': 'Rent',
+                'Others': 'Others'
+            };
+
+            const colors = {
+                'Food': '#3B82F6',               // Blue slice from image_d33639.png
+                'Books & Stationery': '#8B5CF6', // Purple slice from image_d33639.png
+                'Entertainment': '#F59E0B',     // Orange/Amber slice from image_d33639.png
+                'Rent & Utilities': '#00C48C',    // Teal circle from image_d33639.png
+                'Others': '#64748B'
+            };
+
+            const container = document.getElementById('category-progress-list');
+            container.innerHTML = '';
+
+            Object.keys(categoryTargets).forEach(cat => {
+                const limit = categoryTargets[cat];
+                const spent = sums[cat] || 0;
+                const percent = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
+                const colorHex = colors[cat] || '#64748B';
+                const labelName = displayNames[cat] || cat;
+
+                const pieSVG = getPieChartSVG(percent, colorHex);
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col items-center justify-between text-center space-y-4 transition-all duration-300 hover:shadow-md";
+                card.innerHTML = `
+                    <span class="font-extrabold text-slate-800 text-sm tracking-wide">${labelName}</span>
+                    <div class="flex justify-center items-center">
+                        ${pieSVG}
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500">₹${spent} of ₹${limit}</span>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderAnalyticsCharts() {
+            const expenses = state.expenses;
+            const budget = state.budget;
+
+            let totalSpent = 0;
+            const categorySums = { 'Food': 0, 'Books & Stationery': 0, 'Entertainment': 0, 'Rent & Utilities': 0, 'Others': 0 };
+
+            expenses.forEach(exp => {
+                totalSpent += parseFloat(exp.amount);
+                if (categorySums.hasOwnProperty(exp.category)) {
+                    categorySums[exp.category] += parseFloat(exp.amount);
+                } else {
+                    categorySums['Others'] += parseFloat(exp.amount);
+                }
+            });
+
+            // Calculate active KPIs
+            const savingsAmt = Math.max(0, budget - totalSpent);
+            const savingsRate = budget > 0 ? Math.round((savingsAmt / budget) * 100) : 0;
+            const dailyAvg = Math.round(totalSpent / 30);
+
+            let maxVal = 0;
+            let topCat = "None";
+            Object.keys(categorySums).forEach(cat => {
+                if (categorySums[cat] > maxVal) {
+                    maxVal = categorySums[cat];
+                    topCat = cat;
+                }
+            });
+
+            document.getElementById('analytics-savings-rate').innerText = `${savingsRate}%`;
+            document.getElementById('analytics-daily-average').innerText = `₹${dailyAvg.toLocaleString()}`;
+            document.getElementById('analytics-top-category').innerText = topCat;
+
+            const riskText = document.getElementById('analytics-risk-indicator');
+            if (savingsRate < 10) {
+                riskText.innerText = "Critical Alert";
+                riskText.className = "text-2xl font-extrabold text-[#A83925] mt-2";
+            } else if (savingsRate < 25) {
+                riskText.innerText = "Tight Bounds";
+                riskText.className = "text-2xl font-extrabold text-amber-500 mt-2";
+            } else {
+                riskText.innerText = "Optimal Status";
+                riskText.className = "text-2xl font-extrabold text-[#00C48C] mt-2";
+            }
+
+            // Mapped target parameters
+            document.getElementById('analysis-allowance-val').innerText = `₹${budget.toLocaleString()}.00`;
+            document.getElementById('analysis-consumed-val').innerText = `₹${totalSpent.toLocaleString()}.00`;
+            document.getElementById('analysis-reserves-val').innerText = `₹${savingsAmt.toLocaleString()}.00`;
+
+            const consumedPercent = budget > 0 ? Math.round((totalSpent / budget) * 100) : 0;
+            const reservesPercent = Math.max(0, 100 - consumedPercent);
+
+            document.getElementById('analysis-consumed-bar').style.width = `${Math.min(consumedPercent, 100)}%`;
+            document.getElementById('analysis-reserves-bar').style.width = `${Math.min(reservesPercent, 100)}%`;
+
+            // Adjust insights text dynamically
+            const insightText = document.getElementById('analysis-insight-message');
+            if (consumedPercent >= 90) {
+                insightText.innerText = "Urgent Action Required: Non-essential expense categories must be instantly curtailed to prevent allowance exhausting early.";
+            } else if (consumedPercent >= 70) {
+                insightText.innerText = "Notice: You've utilized more than 70% of your current budget. Refrain from excess Entertainment and Outings.";
+            } else {
+                insightText.innerText = "Tip: Exceptional budget maintenance! Keep current spending structures to securely hit your monthly savings targets.";
+            }
+
+            // Dynamic category progress list for the Analytics tab (matching image_d33639.png)
+            const analyticsCategoryTargets = state.categoryLimits;
+            const analyticsDisplayNames = {
+                'Food': 'Food',
+                'Books & Stationery': 'Books',
+                'Entertainment': 'Entertainment',
+                'Rent & Utilities': 'Rent',
+                'Others': 'Others'
+            };
+            const analyticsColors = {
+                'Food': '#3B82F6',               // Blue slice from image_d33639.png
+                'Books & Stationery': '#8B5CF6', // Purple slice from image_d33639.png
+                'Entertainment': '#F59E0B',     // Orange/Amber slice from image_d33639.png
+                'Rent & Utilities': '#00C48C',    // Teal circle from image_d33639.png
+                'Others': '#64748B'
+            };
+
+            const analyticsCategoryProgressList = document.getElementById('analytics-category-progress-list');
+            analyticsCategoryProgressList.innerHTML = '';
+
+            Object.keys(analyticsCategoryTargets).forEach(cat => {
+                const limit = analyticsCategoryTargets[cat];
+                const spent = categorySums[cat] || 0;
+                const percent = limit > 0 ? Math.min(100, Math.round((spent / limit) * 100)) : 0;
+                const colorHex = analyticsColors[cat] || '#64748B';
+                const labelName = analyticsDisplayNames[cat] || cat;
+
+                const pieSVG = getPieChartSVG(percent, colorHex);
+
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col items-center justify-between text-center space-y-4 transition-all duration-300 hover:shadow-md";
+                card.innerHTML = `
+                    <span class="font-extrabold text-slate-800 text-sm tracking-wide">${labelName}</span>
+                    <div class="flex justify-center items-center">
+                        ${pieSVG}
+                    </div>
+                    <span class="text-xs font-semibold text-slate-500">₹${spent} of ₹${limit}</span>
+                `;
+                analyticsCategoryProgressList.appendChild(card);
+            });
+
+            // Dynamic Scale column bar chart rendering
+            const barContainer = document.getElementById('analytics-bar-chart-container');
+            barContainer.innerHTML = '';
+
+            const maxAmount = Math.max(...Object.values(categorySums), 100);
+
+            Object.keys(categorySums).forEach(cat => {
+                const amount = categorySums[cat];
+                const heightPercent = Math.max(5, Math.round((amount / maxAmount) * 100));
+
+                let color = "bg-[#00C48C]";
+                if (cat === "Food") color = "bg-[#3B82F6]";
+                if (cat === "Books & Stationery") color = "bg-[#8B5CF6]";
+                if (cat === "Entertainment") color = "bg-[#F59E0B]";
+                if (cat === "Rent & Utilities") color = "bg-[#A83925]";
+
+                const column = document.createElement('div');
+                column.className = "flex flex-col items-center justify-end h-full w-16 group relative";
+                column.innerHTML = `
+                    <div class="absolute -top-7 text-[10px] font-bold text-slate-100 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 px-1.5 py-0.5 rounded shadow-md z-10">
+                        ₹${amount}
+                    </div>
+                    <div class="${color} rounded-t-lg w-10 transition-all duration-700" style="height: ${heightPercent}%"></div>
+                    <span class="text-[9px] font-bold text-slate-500 mt-2 uppercase text-center w-full truncate">${cat.split(' ')[0]}</span>
+                `;
+                barContainer.appendChild(column);
+            });
+        }
+
+        function renderVirtualDB() {
+            const budgetBody = document.getElementById('db-budgets-body');
+            budgetBody.innerHTML = `
+                <tr class="hover:bg-slate-900 border-b border-slate-800/40">
+                    <td class="p-2 text-indigo-400">1</td>
+                    <td class="p-2 text-slate-100">${state.budget}</td>
+                    <td class="p-2 text-slate-400">'July'</td>
+                    <td class="p-2 text-slate-100">2026</td>
+                </tr>
+            `;
+
+            const expensesBody = document.getElementById('db-expenses-body');
+            expensesBody.innerHTML = '';
+            document.getElementById('db-expenses-count').innerText = `${state.expenses.length} ROW(S)`;
+
+            if (state.expenses.length === 0) {
+                expensesBody.innerHTML = `<tr><td colspan="5" class="p-2 text-center text-slate-500">Empty Table (0 rows)</td></tr>`;
+                return;
+            }
+
+            state.expenses.forEach(exp => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900 border-b border-slate-800/40";
+                tr.innerHTML = `
+                    <td class="p-2 text-indigo-400">${exp.id}</td>
+                    <td class="p-2 text-slate-100">${exp.amount}</td>
+                    <td class="p-2 text-emerald-400">'${exp.category}'</td>
+                    <td class="p-2 text-slate-300">'${escapeHTML(exp.description)}'</td>
+                    <td class="p-2 text-amber-400">'${exp.date_created}'</td>
+                `;
+                expensesBody.appendChild(tr);
+            });
+        }
+
+        async function handleAddExpense(event) {
+            event.preventDefault();
+            
+            const amountInput = document.getElementById('form-amount');
+            const catInput = document.getElementById('form-category');
+            const descInput = document.getElementById('form-description');
+            const dateInput = document.getElementById('form-date');
+
+            const payload = {
+                amount: parseFloat(amountInput.value),
+                category: catInput.value,
+                description: descInput.value,
+                date_created: dateInput.value
+            };
+
+            logConsole("HTTP", `POST /api/expenses - DATA: ${JSON.stringify(payload)}`);
+
+            if (state.simulateDelay) {
+                showToast("Connecting", "Waiting for virtual Flask validation...", "info");
+                await wait(1000);
+            }
+
+            const newId = Math.floor(Math.random() * 900) + 100;
+            const newRecord = { id: newId, ...payload };
+            state.expenses.unshift(newRecord);
+            saveToLocalStorage();
+
+            logConsole("Database", `SQL: INSERT INTO expenses (amount, category, description, date_created) VALUES (${payload.amount}, '${payload.category}', '${payload.description}', '${payload.date_created}')`);
+            logConsole("HTTP", "Response 201 Created - Item Added Successful");
+
+            amountInput.value = '';
+            descInput.value = '';
+            
+            renderApp();
+            showToast("Success", "Expense recorded in virtual database!", "success");
+        }
+
+        async function handleDeleteExpense(id) {
+            logConsole("HTTP", `DELETE /api/expenses/${id}`);
+
+            if (state.simulateDelay) {
+                showToast("Purging Record", "Synchronizing deletion targets...", "info");
+                await wait(1000);
+            }
+
+            state.expenses = state.expenses.filter(exp => exp.id !== id);
+            saveToLocalStorage();
+
+            logConsole("Database", `SQL: DELETE FROM expenses WHERE id = ${id}`);
+            logConsole("HTTP", "Response 200 OK - Record Purged");
+
+            renderApp();
+            showToast("Trash", "Selected entry removed from system logs.", "warning");
+        }
+
+        async function clearAllExpenses() {
+            logConsole("HTTP", `DELETE /api/expenses/clear_all`);
+            if (state.simulateDelay) await wait(800);
+
+            state.expenses = [];
+            saveToLocalStorage();
+
+            logConsole("Database", `SQL: DELETE FROM expenses`);
+            logConsole("HTTP", "Response 200 OK - Database Cleaned");
+
+            renderApp();
+            showToast("Purged", "All registered transactions wiped out.", "warning");
+        }
+
+        function openSetBudgetModal() {
+            document.getElementById('modal-cat-food').value = state.categoryLimits['Food'] || 0;
+            document.getElementById('modal-cat-books').value = state.categoryLimits['Books & Stationery'] || 0;
+            document.getElementById('modal-cat-ent').value = state.categoryLimits['Entertainment'] || 0;
+            document.getElementById('modal-cat-rent').value = state.categoryLimits['Rent & Utilities'] || 0;
+            document.getElementById('modal-cat-others').value = state.categoryLimits['Others'] || 0;
+            calculateTotalFromCategories();
+            document.getElementById('budget-modal').classList.remove('hidden');
+        }
+
+        function closeSetBudgetModal() {
+            document.getElementById('budget-modal').classList.add('hidden');
+        }
+
+        function calculateTotalFromCategories() {
+            const food = parseFloat(document.getElementById('modal-cat-food').value) || 0;
+            const books = parseFloat(document.getElementById('modal-cat-books').value) || 0;
+            const ent = parseFloat(document.getElementById('modal-cat-ent').value) || 0;
+            const rent = parseFloat(document.getElementById('modal-cat-rent').value) || 0;
+            const others = parseFloat(document.getElementById('modal-cat-others').value) || 0;
+            
+            const total = food + books + ent + rent + others;
+            document.getElementById('modal-calculated-total').innerText = `₹${total.toLocaleString()}`;
+            return total;
+        }
+
+        async function handleSetBudget() {
+            const food = parseFloat(document.getElementById('modal-cat-food').value) || 0;
+            const books = parseFloat(document.getElementById('modal-cat-books').value) || 0;
+            const ent = parseFloat(document.getElementById('modal-cat-ent').value) || 0;
+            const rent = parseFloat(document.getElementById('modal-cat-rent').value) || 0;
+            const others = parseFloat(document.getElementById('modal-cat-others').value) || 0;
+
+            const newTotal = food + books + ent + rent + others;
+
+            if (newTotal <= 0) {
+                showToast("Error", "Total budget must be greater than ₹0.", "error");
+                return;
+            }
+
+            logConsole("HTTP", `POST /api/budget - DATA: ${JSON.stringify({ budget: newTotal, categories: { Food: food, Books: books, Entertainment: ent, Rent: rent, Others: others } })}`);
+
+            if (state.simulateDelay) await wait(500);
+
+            state.budget = newTotal;
+            state.categoryLimits = {
+                'Food': food,
+                'Books & Stationery': books,
+                'Entertainment': ent,
+                'Rent & Utilities': rent,
+                'Others': others
+            };
+            
+            saveToLocalStorage();
+
+            logConsole("Database", `SQL: UPDATE budgets SET total_budget=${newTotal} WHERE id=1`);
+            logConsole("Database", `SQL: UPDATE category_limits SET food=${food}, books=${books}, entertainment=${ent}, rent=${rent}, others=${others}`);
+            logConsole("HTTP", "Response 200 OK - Budgets customized and synchronized");
+
+            closeSetBudgetModal();
+            renderApp();
+            showToast("Updated", `Category budgets updated! Total is ₹${newTotal.toLocaleString()}`, "success");
+        }
+
+        function logConsole(sender, message) {
+            const terminal = document.getElementById('console-logger-terminal');
+            const logRow = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+
+            if (sender === "HTTP") {
+                logRow.className = "text-emerald-400";
+                logRow.innerText = `[${timestamp}] [HTTP] ${message}`;
+            } else if (sender === "Database") {
+                logRow.className = "text-amber-400";
+                logRow.innerText = `[${timestamp}] [DB] ${message}`;
+            } else {
+                logRow.className = "text-slate-400";
+                logRow.innerText = `[${timestamp}] [SYS] ${message}`;
+            }
+
+            terminal.appendChild(logRow);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function clearConsoleLogs() {
+            document.getElementById('console-logger-terminal').innerHTML = `<div class="text-slate-500">[System] Log console purged. Ready.</div>`;
+        }
+
+        function switchCodeTab(target) {
+            currentCodeTab = target;
+            const tabFlask = document.getElementById('btn-code-flask');
+            const tabInitdb = document.getElementById('btn-code-initdb');
+
+            const blockFlask = document.getElementById('code-flask-block');
+            const blockInitdb = document.getElementById('code-initdb-block');
+
+            tabFlask.className = "px-6 py-3 text-slate-400 hover:text-slate-200 transition-all";
+            tabInitdb.className = "px-6 py-3 text-slate-400 hover:text-slate-200 transition-all";
+
+            blockFlask.classList.add('hidden');
+            blockInitdb.classList.add('hidden');
+
+            if (target === 'flask') {
+                tabFlask.className = "px-6 py-3 border-r border-slate-100 font-bold text-indigo-500 transition-all bg-white";
+                blockFlask.classList.remove('hidden');
+            } else if (target === 'initdb') {
+                tabInitdb.className = "px-6 py-3 border-r border-slate-100 font-bold text-indigo-500 transition-all bg-white";
+                blockInitdb.classList.remove('hidden');
+            }
+        }
+
+        function copyActiveCodeToClipboard() {
+            let activeText = currentCodeTab === 'flask' ? 
+                document.getElementById('code-flask-block').innerText : 
+                document.getElementById('code-initdb-block').innerText;
+
+            const tempInput = document.createElement("textarea");
+            tempInput.value = activeText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast("Copied!", "Snippet added to clipboard.", "success");
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('fintrack_budget', state.budget);
+            localStorage.setItem('fintrack_category_limits', JSON.stringify(state.categoryLimits));
+            localStorage.setItem('fintrack_expenses', JSON.stringify(state.expenses));
+            localStorage.setItem('fintrack_profile', JSON.stringify(state.user));
+        }
+
+        function simulateNetworkDelay() {
+            state.simulateDelay = !state.simulateDelay;
+            const toastMsg = state.simulateDelay ? "Network latency simulation active (1s delay)." : "Network latency deactivated.";
+            showToast("System Network", toastMsg, "info");
+        }
+
+        function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+        function escapeHTML(str) { return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)); }
+
+        // Render responsive custom notifications
+        function showToast(title, msg, type = "success") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let accentColor = "border-indigo-500 text-indigo-200 bg-slate-950";
+            let iconSvg = `<i class="fa-solid fa-circle-info text-indigo-400 text-base"></i>`;
+
+            if (type === "success") {
+                accentColor = "border-emerald-500 text-emerald-200 bg-[#0B1220]";
+                iconSvg = `<i class="fa-solid fa-circle-check text-[#00C48C] text-base"></i>`;
+            } else if (type === "warning") {
+                accentColor = "border-amber-500 text-amber-200 bg-[#0B1220]";
+                iconSvg = `<i class="fa-solid fa-circle-exclamation text-amber-500 text-base"></i>`;
+            } else if (type === "error") {
+                accentColor = "border-rose-500 text-rose-200 bg-[#0B1220]";
+                iconSvg = `<i class="fa-solid fa-circle-xmark text-rose-500 text-base"></i>`;
+            }
+
+            toast.className = `flex items-start gap-3 p-4 border rounded-xl shadow-xl transition-all duration-300 translate-x-10 opacity-0 ${accentColor}`;
+            toast.innerHTML = `
+                <div class="shrink-0 mt-0.5">${iconSvg}</div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-xs text-slate-100 uppercase tracking-wide">${title}</h4>
+                    <p class="text-xs text-slate-300 mt-1">${msg}</p>
+                </div>
+            `;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-10', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+    </script>
+</body>
+</html>
